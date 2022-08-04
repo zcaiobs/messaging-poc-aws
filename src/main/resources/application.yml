@@ -1,3 +1,6 @@
+server:
+  port: 8090
+
 logging:
   level:
     web: DEBUG
@@ -8,5 +11,4 @@ cloud:
       static: us-east-1
       auto: false
     credentials:
-      access-key: ${ACCESS_KEY_AWS}
-      secret-key: ${SECRET_KEY_AWS}
+      profile-name: default

@@ -1,6 +1,8 @@
 package com.example.cloud.controller;
 
 import com.amazonaws.services.sqs.model.Message;
+import com.example.cloud.domain.Demo;
+import com.google.gson.Gson;
 import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
@@ -25,9 +27,9 @@ public class SqsController {
 
     @PostMapping(value = "/send")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public void sendMessageToSqs(@RequestBody final Message message) {
+    public void sendMessageToSqs(@RequestBody final Demo demo) {
         LOGGER.info("Sending the message to the Amazon sqs.");
-        queueMessagingTemplate.convertAndSend(QUEUE, message);
+        queueMessagingTemplate.convertAndSend(QUEUE, demo);
         LOGGER.info("Message sent successfully to the Amazon sqs.");
     }
 
@@ -39,6 +41,7 @@ public class SqsController {
 
     @SqsListener(value = QUEUE, deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     public void getMessageFromSqsg(Message message) {
-        LOGGER.info("Received message= {}", message);
+        var result = new Gson().fromJson(message.getBody(), Demo.class);
+        LOGGER.info("Received message = {}", result.getValue());
     }
 }
