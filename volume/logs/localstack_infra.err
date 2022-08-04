@@ -1,0 +1,4 @@
+2022-08-04T00:15:04.193  WARN --- [  Thread-106] hypercorn.error            : ASGI Framework Lifespan error, continuing without Lifespan support
+2022-08-04T00:15:04.193  WARN --- [  Thread-106] hypercorn.error            : ASGI Framework Lifespan error, continuing without Lifespan support
+2022-08-04T00:15:04.197  INFO --- [  Thread-106] hypercorn.error            : Running on https://0.0.0.0:4566 (CTRL + C to quit)
+2022-08-04T00:15:04.197  INFO --- [  Thread-106] hypercorn.error            : Running on https://0.0.0.0:4566 (CTRL + C to quit)

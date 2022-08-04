@@ -1,0 +1,12 @@
+logging:
+  level:
+    web: DEBUG
+
+cloud:
+  aws:
+    region:
+      static: us-east-1
+      auto: false
+    credentials:
+      access-key: ${ACCESS_KEY_AWS}
+      secret-key: ${SECRET_KEY_AWS}
