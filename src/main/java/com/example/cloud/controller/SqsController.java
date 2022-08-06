@@ -13,15 +13,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/messaging")
 public class SqsController {
 
-    private static final String QUEUE = "MyQueue";
     private static final String TOPIC = "MyTopic";
+    private static final String QUEUE1 = "MyQueue1";
+    private static final String QUEUE2 = "MyQueue2";
+    private static final String QUEUE3 = "MyQueue3";
+    private static final String QUEUEDLQ = "MyQueueDLQ";
 
     Gson gson = new Gson();
 
@@ -37,7 +40,7 @@ public class SqsController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public void sendMessageToSqs(@RequestBody final Demo demo) {
         LOGGER.info("Sending the message to the Amazon sqs.");
-        queueMessagingTemplate.convertAndSend(QUEUE, demo);
+        queueMessagingTemplate.convertAndSend(QUEUE1, demo);
         LOGGER.info("Message sent successfully to the Amazon sqs.");
     }
 
@@ -45,19 +48,35 @@ public class SqsController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public void sendMessageToSns(@RequestBody final Demo demo) {
         LOGGER.info("Sending the message to the Amazon sns.");
-        notificationMessagingTemplate.convertAndSend(TOPIC, demo);
+        notificationMessagingTemplate.convertAndSend(TOPIC, demo, Map.of("type", "C"));
         LOGGER.info("Message sent successfully to the Amazon sns.");
     }
 
     @GetMapping(value = "/get")
-    public ResponseEntity<?> getMessageFromSqs(Message message, @Header("MessageId") String messageId) {
-        var result = queueMessagingTemplate.receiveAndConvert(QUEUE, Message.class);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<?> getMessageFromSqs() {
+        var result = queueMessagingTemplate.receiveAndConvert(QUEUEDLQ, Demo.class);
+        if(result != null) {
+            LOGGER.info("Received message queueDlQ = {}", result.getValue());
+            return ResponseEntity.ok(result);
+        }
+        return ResponseEntity.noContent().build();
     }
 
-    @SqsListener(value = QUEUE, deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-    public void getMessageFromSqsg(Message message) {
+    @SqsListener(value = QUEUE1, deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    public void getMessageFromSqsg1(Message message) throws Exception {
+        throw new Exception("ERROR");
+//        var result = gson.fromJson(gson.fromJson(message.getBody(), MessageSns.class).getMessage(), Demo.class) ;
+//        LOGGER.info("Received message queue 1 = {}", result.getValue());
+    }
+
+    @SqsListener(value = QUEUE2, deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    public void getMessageFromSqsg2(Message message) {
         var result = gson.fromJson(gson.fromJson(message.getBody(), MessageSns.class).getMessage(), Demo.class) ;
-        LOGGER.info("Received message = {}", result.getValue());
+        LOGGER.info("Received message queue 2 = {}", result.getValue());
+    }
+
+    @SqsListener(value = QUEUE3, deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    public void getMessageFromSqsg3(Message message) throws Exception {
+        throw new Exception("ERROR");
     }
 }
